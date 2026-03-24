@@ -15,6 +15,11 @@ const claimsRoutes = require('./routes/claims');
 const appointmentsRoutes = require('./routes/appointments');
 const paymentsRoutes = require('./routes/payments');
 const contributorVerificationRoutes = require('./routes/contributorVerification');
+const providersRoutes = require('./routes/providers');
+const providerAvailabilityRoutes = require('./routes/providerAvailability');
+const providerVerificationRoutes = require('./routes/providerVerification');
+const reviewModerationRoutes = require('./routes/reviewModeration');
+const directorySyncRoutes = require('./routes/directorySync');
 
 const { initializeDatabase } = require('./database/init');
 const { authenticateToken } = require('./middleware/auth');
@@ -63,6 +68,11 @@ app.use('/api/claims', authenticateToken, cacheMiddleware, claimsRoutes);
 app.use('/api/appointments', authenticateToken, cacheMiddleware, appointmentsRoutes);
 app.use('/api/payments', authenticateToken, cacheMiddleware, paymentsRoutes);
 app.use('/api/contributor', authenticateToken, contributorVerificationRoutes);
+app.use('/api/providers', providersRoutes);
+app.use('/api/provider-availability', authenticateToken, providerAvailabilityRoutes);
+app.use('/api/provider-verification', providerVerificationRoutes);
+app.use('/api/review-moderation', authenticateToken, reviewModerationRoutes);
+app.use('/api/directory-sync', authenticateToken, directorySyncRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 

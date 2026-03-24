@@ -20,9 +20,7 @@ import {
   Lock,
   Cpu,
   CreditCard as CreditIcon,
-  Search,
-  Brain,
-  Eye
+
 } from 'lucide-react';
 import './App.css';
 import MedicalRecordManager from './components/MedicalRecordManager';
@@ -30,10 +28,7 @@ import MFASystem from './components/MFASystem';
 import ClaimEngine from './components/ClaimEngine';
 import PaymentGateways from './components/PaymentGateways';
 import PatientDashboard from './components/PatientDashboard';
-import HL7FHIRIntegration from './components/HL7FHIRIntegration';
-import AuditLogViewer from './components/AuditLogViewer';
-import ComplianceDashboard from './components/ComplianceDashboard';
-import AnomalyDashboard from './components/AnomalyDashboard';
+
 
 // Contract ABIs (simplified for demo)
 const HEALTHCARE_DRIPS_ABI = [
@@ -320,6 +315,13 @@ function App() {
               Security
             </button>
             <button 
+              onClick={() => setActiveTab('emergency')}
+              className={activeTab === 'emergency' ? 'active' : ''}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Emergency
+            </button>
+            <button 
               onClick={() => setActiveTab('engine')}
               className={activeTab === 'engine' ? 'active' : ''}
             >
@@ -393,6 +395,7 @@ function App() {
             {activeTab === 'contributors' && <Contributors />}
             {activeTab === 'records' && <MedicalRecordManager account={account} contract={contract} />}
             {activeTab === 'security' && <MFASystem account={account} contract={contract} />}
+            {activeTab === 'emergency' && <EmergencyAccess account={account} />}
             {activeTab === 'engine' && <ClaimEngine account={account} contract={contract} />}
             {activeTab === 'payments' && <PaymentGateways account={account} contract={contract} />}
             {activeTab === 'integration' && <HL7FHIRIntegration />}

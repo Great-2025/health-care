@@ -28,7 +28,7 @@ import MFASystem from './components/MFASystem';
 import ClaimEngine from './components/ClaimEngine';
 import PaymentGateways from './components/PaymentGateways';
 import PatientDashboard from './components/PatientDashboard';
-import EmergencyAccess from './components/EmergencyAccess';
+
 
 // Contract ABIs (simplified for demo)
 const HEALTHCARE_DRIPS_ABI = [
@@ -335,6 +335,13 @@ function App() {
               <CreditIcon className="w-4 h-4" />
               Payments
             </button>
+            <button 
+              onClick={() => setActiveTab('integration')}
+              className={activeTab === 'integration' ? 'active' : ''}
+            >
+              <Database className="w-4 h-4" />
+              HL7/FHIR
+            </button>
           </nav>
           
           <div className="wallet-section">
@@ -370,6 +377,7 @@ function App() {
             {activeTab === 'emergency' && <EmergencyAccess account={account} />}
             {activeTab === 'engine' && <ClaimEngine account={account} contract={contract} />}
             {activeTab === 'payments' && <PaymentGateways account={account} contract={contract} />}
+            {activeTab === 'integration' && <HL7FHIRIntegration />}
           </>
         )}
       </main>

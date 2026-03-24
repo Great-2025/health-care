@@ -34,7 +34,7 @@
     "uuid": "^9.0.0",
     "compression": "^1.7.4",
     "morgan": "^1.10.0",
-
+main
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

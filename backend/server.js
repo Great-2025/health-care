@@ -11,6 +11,8 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const medicalRecordsRoutes = require('./routes/medicalRecords');
+const emergencyAccessRoutes = require('./routes/emergencyAccess');
+
 
 
 

@@ -11,6 +11,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const medicalRecordsRoutes = require('./routes/medicalRecords');
+const hl7FhirRoutes = require('./routes/hl7-fhir');
 
 
 const { initializeDatabase } = require('./database/init');
@@ -59,6 +60,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', authenticateToken, cacheMiddleware, patientRoutes);
 app.use('/api/medical-records', authenticateToken, cacheMiddleware, medicalRecordsRoutes);
+app.use('/api/hl7-fhir', hl7FhirRoutes);
 
 
 app.get('/api/health', (req, res) => {

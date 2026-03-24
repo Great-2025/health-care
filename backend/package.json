@@ -51,7 +51,12 @@
     "pdf-parse": "^1.1.1",
     "node-cron": "^3.0.3",
     "speakeasy": "^2.0.0",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "sequelize": "^6.32.1",
+    "hl7": "^2.0.0",
+    "fhir": "^2.0.2",
+    "xml2js": "^0.6.2",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

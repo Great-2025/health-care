@@ -15,6 +15,34 @@ function initializeDatabase() {
       console.log('Connected to SQLite database');
     });
 
+    // First, initialize the reputation schema
+    const reputationSchemaPath = path.join(__dirname, 'reputation-schema.sql');
+    let reputationSQL = '';
+    
+    if (fs.existsSync(reputationSchemaPath)) {
+      reputationSQL = fs.readFileSync(reputationSchemaPath, 'utf8');
+    }
+
+    // Execute reputation schema first
+    if (reputationSQL) {
+      db.exec(reputationSQL, (err) => {
+        if (err) {
+          console.error('Error creating reputation tables:', err);
+        } else {
+          console.log('Reputation tables created successfully');
+        }
+        
+        // Then continue with the rest of the tables
+        createMainTables(db, resolve, reject);
+      });
+    } else {
+      createMainTables(db, resolve, reject);
+    }
+  });
+}
+
+function createMainTables(db, resolve, reject) {
+
     const tables = [
       `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

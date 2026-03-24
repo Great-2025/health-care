@@ -135,6 +135,58 @@ function initializeDatabase() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
+      `CREATE TABLE IF NOT EXISTS notifications_enhanced (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        notification_id TEXT UNIQUE NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        type TEXT CHECK (type IN ('claim', 'payment', 'appointment', 'system', 'medical_record')),
+        priority TEXT CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+        status TEXT CHECK (status IN ('pending', 'sent', 'delivered', 'failed', 'read')) DEFAULT 'pending',
+        delivery_methods TEXT,
+        template_name TEXT,
+        template_data TEXT,
+        email_sent BOOLEAN DEFAULT FALSE,
+        sms_sent BOOLEAN DEFAULT FALSE,
+        push_sent BOOLEAN DEFAULT FALSE,
+        in_app_sent BOOLEAN DEFAULT FALSE,
+        sent_at DATETIME,
+        read_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )`,
+
+      `CREATE TABLE IF NOT EXISTS user_notification_preferences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        notification_type TEXT NOT NULL CHECK (notification_type IN ('claim', 'payment', 'appointment', 'system', 'medical_record')),
+        email_enabled BOOLEAN DEFAULT TRUE,
+        sms_enabled BOOLEAN DEFAULT FALSE,
+        push_enabled BOOLEAN DEFAULT TRUE,
+        in_app_enabled BOOLEAN DEFAULT TRUE,
+        frequency TEXT CHECK (frequency IN ('immediate', 'daily', 'weekly', 'never')) DEFAULT 'immediate',
+        quiet_hours_start TIME,
+        quiet_hours_end TIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(user_id, notification_type)
+      )`,
+
+      `CREATE TABLE IF NOT EXISTS user_device_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        device_token TEXT NOT NULL,
+        device_type TEXT CHECK (device_type IN ('ios', 'android', 'web')) NOT NULL,
+        device_name TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+      )`,
+
       // Analytics tables
       `CREATE TABLE IF NOT EXISTS claims_analytics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -372,6 +424,13 @@ function initializeDatabase() {
       'CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON appointments(patient_id)',
       'CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date)',
       'CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)',
+      'CREATE INDEX IF NOT EXISTS idx_notifications_enhanced_user_id ON notifications_enhanced(user_id)',
+      'CREATE INDEX IF NOT EXISTS idx_notifications_enhanced_type ON notifications_enhanced(type)',
+      'CREATE INDEX IF NOT EXISTS idx_notifications_enhanced_status ON notifications_enhanced(status)',
+      'CREATE INDEX IF NOT EXISTS idx_notifications_enhanced_created ON notifications_enhanced(created_at)',
+      'CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_notification_preferences(user_id)',
+      'CREATE INDEX IF NOT EXISTS idx_user_device_tokens_user_id ON user_device_tokens(user_id)',
+      'CREATE INDEX IF NOT EXISTS idx_user_device_tokens_token ON user_device_tokens(device_token)',
       'CREATE INDEX IF NOT EXISTS idx_claims_analytics_date ON claims_analytics(service_date)',
       'CREATE INDEX IF NOT EXISTS idx_claims_analytics_status ON claims_analytics(status)',
       'CREATE INDEX IF NOT EXISTS idx_claims_analytics_patient ON claims_analytics(patient_id)',

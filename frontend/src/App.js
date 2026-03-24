@@ -19,7 +19,10 @@ import {
   Database,
   Lock,
   Cpu,
-  CreditCard as CreditIcon
+  CreditCard as CreditIcon,
+  Search,
+  Brain,
+  Eye
 } from 'lucide-react';
 import './App.css';
 import MedicalRecordManager from './components/MedicalRecordManager';
@@ -28,6 +31,9 @@ import ClaimEngine from './components/ClaimEngine';
 import PaymentGateways from './components/PaymentGateways';
 import PatientDashboard from './components/PatientDashboard';
 import HL7FHIRIntegration from './components/HL7FHIRIntegration';
+import AuditLogViewer from './components/AuditLogViewer';
+import ComplianceDashboard from './components/ComplianceDashboard';
+import AnomalyDashboard from './components/AnomalyDashboard';
 
 // Contract ABIs (simplified for demo)
 const HEALTHCARE_DRIPS_ABI = [
@@ -334,6 +340,27 @@ function App() {
               <Database className="w-4 h-4" />
               HL7/FHIR
             </button>
+            <button 
+              onClick={() => setActiveTab('audit-logs')}
+              className={activeTab === 'audit-logs' ? 'active' : ''}
+            >
+              <Search className="w-4 h-4" />
+              Audit Logs
+            </button>
+            <button 
+              onClick={() => setActiveTab('compliance')}
+              className={activeTab === 'compliance' ? 'active' : ''}
+            >
+              <Shield className="w-4 h-4" />
+              Compliance
+            </button>
+            <button 
+              onClick={() => setActiveTab('anomalies')}
+              className={activeTab === 'anomalies' ? 'active' : ''}
+            >
+              <Brain className="w-4 h-4" />
+              Anomalies
+            </button>
           </nav>
           
           <div className="wallet-section">
@@ -369,6 +396,9 @@ function App() {
             {activeTab === 'engine' && <ClaimEngine account={account} contract={contract} />}
             {activeTab === 'payments' && <PaymentGateways account={account} contract={contract} />}
             {activeTab === 'integration' && <HL7FHIRIntegration />}
+            {activeTab === 'audit-logs' && <AuditLogViewer />}
+            {activeTab === 'compliance' && <ComplianceDashboard />}
+            {activeTab === 'anomalies' && <AnomalyDashboard />}
           </>
         )}
       </main>

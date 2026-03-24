@@ -12,12 +12,14 @@ const authRoutes = require('./routes/auth');
 const patientRoutes = require('./routes/patients');
 const medicalRecordsRoutes = require('./routes/medicalRecords');
 const hl7FhirRoutes = require('./routes/hl7-fhir');
-
+const auditRoutes = require('./routes/audit');
 
 const { initializeDatabase } = require('./database/init');
 const { authenticateToken } = require('./middleware/auth');
 const { cacheMiddleware } = require('./middleware/cache');
 const { errorHandler } = require('./middleware/errorHandler');
+const { auditMiddleware } = require('./middleware/audit');
+const AuditMonitoringService = require('./services/auditMonitoringService');
 
 
 const app = express();
@@ -31,6 +33,8 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 5000;
 
+// Initialize audit monitoring service
+let auditMonitoringService = null;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -53,14 +57,22 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   req.io = io;
-
   next();
+});
+
+// Apply audit middleware to all routes (except health check)
+app.use((req, res, next) => {
+  if (req.path === '/api/health') {
+    return next();
+  }
+  return auditMiddleware.audit()(req, res, next);
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', authenticateToken, cacheMiddleware, patientRoutes);
 app.use('/api/medical-records', authenticateToken, cacheMiddleware, medicalRecordsRoutes);
 app.use('/api/hl7-fhir', hl7FhirRoutes);
+app.use('/api/audit', auditRoutes);
 
 
 app.get('/api/health', (req, res) => {
@@ -74,6 +86,20 @@ app.get('/api/health', (req, res) => {
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
   
+  // Handle audit alert subscriptions
+  socket.on('subscribe_audit_alerts', (data) => {
+    const { alertTypes = [], severities = [] } = data;
+    if (auditMonitoringService) {
+      auditMonitoringService.subscribeToAlerts(socket, alertTypes, severities);
+    }
+  });
+
+  socket.on('unsubscribe_audit_alerts', () => {
+    if (auditMonitoringService) {
+      auditMonitoringService.unsubscribeFromAlerts(socket.id);
+    }
+  });
+  
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
@@ -85,10 +111,15 @@ async function startServer() {
   try {
     await initializeDatabase();
 
+    // Initialize audit monitoring service
+    auditMonitoringService = new AuditMonitoringService(io);
+
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Health check available at http://localhost:${PORT}/api/health`);
       console.log(`HL7/FHIR API available at http://localhost:${PORT}/api/hl7-fhir`);
+      console.log(`Audit API available at http://localhost:${PORT}/api/audit`);
+      console.log('Real-time audit monitoring enabled');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
